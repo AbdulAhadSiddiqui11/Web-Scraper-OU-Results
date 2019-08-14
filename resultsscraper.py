@@ -16,8 +16,8 @@ def append_dataframe(results_data,name,sgpa,rno,subjects,grades):
     data['Result'] = sgpa                                                                                                    
     temp_dataframe = pd.DataFrame(data, columns = ['Roll No.', 'Name', ] +\
                                   subjects + ['Result'], index = [rno,])                             # Creating a temp dataframe with only one row and same structure (columns) as that of results_data                                
-    updated_results_data = results_data.append(temp_dataframe)                                       # Appending the new dataframe to results_data
-    return updated_results_data
+    results_data = results_data.append(temp_dataframe, sort = False)                                 # Appending the new dataframe to results_data
+    return results_data
 
 def fetch_result(starting_roll, ending_roll, url):
     pbar = ProgressBar()                                                                            # Defines a progress bar object
@@ -30,15 +30,15 @@ def fetch_result(starting_roll, ending_roll, url):
                 # Fetching student name
                 name_table = soup.find(id = 'AutoNumber3')                                          # Find the table with student details (name, fname etc)
                 name_rows = name_table.find_all('tr')                                               # Dividing the table into list of rows
-                name_row = name_rows[2].find_all('td')                                              # Row 3 (indexed 2) has name, so divide row-2 into columns
-                name = name_row[1].get_text()                                                       # Since name is in 2nd column, indexed 1
+                name_row = name_rows[2].find_all('td')                                              # Row 3 (indexed 2) has name, so divide row-3 into columns
+                name = name_row[1].get_text()                                                       # Since name is in 2nd column (indexed 1)
 
                 # Fetching student scores for each subject
                 subjects = []                                                                       # We'll store subject names here
                 grades = []                                                                         # This is for grade points for same indexed subject in subjects[]
                 score_table = soup.find(id = 'AutoNumber4')                                         # Find the table with score
                 score_rows = score_table.find_all('tr')                                             # Dividing the table into a list of rows
-                for row in range(2 , len(score_rows) + 1):                                          # Since actual data starts from row 3 (indexed 2)
+                for row in range(2 , len(score_rows)):                                              # Since actual data starts from row 3 (indexed 2)
                     score_cols = score_rows[row].find_all('td')                                     # Dividing each row into columns
                     subjects.append(str(score_cols[1].get_text()))                                  # Extracting subject from column 2 (indexed 1)
                     grades.append(float(score_cols[3].get_text()))                                  # Extracting the score for the same subject
@@ -46,17 +46,16 @@ def fetch_result(starting_roll, ending_roll, url):
                 # Fetching final result and SGPA
                 result_table = soup.find( id = 'AutoNumber5')                                       # Find the table with final result
                 result_rows = result_table.find_all('tr')                                           # Dividing the table into a list of rows
-                result_row = result_rows[2].find_all('td')                                          # Row 3 (indexed 2) has sgpa, so divide row-2 into columns
+                result_row = result_rows[-1].find_all('td')                                         # Generally Row 3 (indexed 2) has sgpa (or last row in case of 'promoted' case), so divide row-3 into columns
                 sgpa = str(result_row[2].get_text()).strip()                                        # Extract sgpa from column 3 (indexed 2)  
         
 
                 if rno == starting_roll:                                                            # If its the first iteration create a new empty data frame
                     results_data = create_dataframe(subjects)
-
-                elif rno != starting_roll:                                                          # If its not the first iteration, append new rows to the existing dataframe
-                    results_data = append_dataframe(results_data,name,sgpa\
-                                                    ,rno%1000000,subjects,grades)        
-                if rno == ending_roll+1:                                                            # Return the completed DataFrame
+                                     
+                results_data = append_dataframe(results_data,name,sgpa\
+                                                    ,rno%1000000,subjects,grades)                   # If its not the first iteration, append new rows to the existing dataframe      
+                if rno == ending_roll:                                                              # Return the completed DataFrame
                     return results_data
         except:
             pass
@@ -66,12 +65,15 @@ def visualize(dataframe):
     unprocessed_gpa = dataframe['Result'].tolist()                                                  # Creating a list of SGPAs
     sgpa = []
     for gpa in unprocessed_gpa:
-        sgpa.append(float(gpa[7:len(gpa)+1]))
+        if gpa == 'PROMOTED--' or gpa == 'DETAINED' or gpa == 'PROMOTED':
+            sgpa.append(float(0.0))
+        else:
+            sgpa.append(float(gpa[7:len(gpa)+1]))                                                   # Fetching float values from result Eg : 'PASSED-8.64'
 
     unprocessed_rolls = dataframe['Roll No.'].tolist()                                              # Creating a list of roll numbers (less digits) 
     rolls = []
     for roll in unprocessed_rolls:
-        rolls.append(int(roll%100))
+        rolls.append(int(roll%1000))
 
     plt.figure(num=None, figsize=(22, 8), dpi=80, facecolor='w', edgecolor='k')
     plt.xlabel("Roll Number", fontsize = 17)
@@ -95,12 +97,12 @@ def main():
     visualize(dataframe)
     print()
     
-    names = dataframe['Name'].tolist()
+    names = dataframe['Name'].tolist()                                                     		 # Generating lists of names, rolls and GPAs
     rolls = dataframe['Roll No.'].tolist()
     gpa = dataframe['Result'].tolist()
 
     print("Found " + str(len(names)) + " students between the given roll numbers")
-    for i in range(len(names)+1):
+    for i in range(len(names)):
         print(str(rolls[i]) + " : " + str(names[i]) + " : " + str(gpa[i]))
 
     dataframe.to_csv("Results")
