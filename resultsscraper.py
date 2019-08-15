@@ -58,7 +58,6 @@ def fetch_result(starting_roll, ending_roll, url):
                                                     ,rno%1000000,subjects,grades)                   # If its not the first iteration, append new rows to the existing dataframe      
                 
         except :
-            exception_counter += 1
             print('\n' + str(rno) + " - Doesn't exists")
             
             
