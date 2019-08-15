@@ -15,7 +15,7 @@ def append_dataframe(results_data,name,sgpa,rno,subjects,grades):
     data['Roll No.'] = rno
     data['Result'] = sgpa                                                                                                    
     temp_dataframe = pd.DataFrame(data, columns = ['Roll No.', 'Name', ] +\
-                                  subjects + ['Result'], index = [rno,])                             # Creating a temp dataframe with only one row and same structure (columns) as that of results_data                                
+                                  subjects + ['Result'], index = [rno%1000,])                        # Creating a temp dataframe with only one row and same structure (columns) as that of results_data                                
     results_data = results_data.append(temp_dataframe, sort = False)                                 # Appending the new dataframe to results_data
     return results_data
 
