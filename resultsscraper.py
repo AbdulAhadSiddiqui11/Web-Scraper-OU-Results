@@ -74,6 +74,8 @@ def visualize(dataframe):
             sgpa.append(float(0.05))
         elif gpa == 'DETAINED':
             sgpa.append(float(-0.05))
+        elif gpa[1] == 'R':                                                                            # For PROMOTED - 7.65 case. 
+            sgpa.append(float(gpa[9:len(gpa)+1]))
         else:
             sgpa.append(float(gpa[7:len(gpa)+1]))                                                      # Fetching float values from result Eg : 'PASSED-8.64'
 
