@@ -5,10 +5,10 @@ The web-scraper can quickly be modified to a specific use case, for example deta
 
 ## Getting Started
 
-Clone the repository to your local machine
-Extract all the files into a directory
-Run the  	**resultsscraper.py**
-Use can otherwise run the notebook **ResultsScraper.ipynb** 
+Clone the repository to your local machine  
+Extract all the files into a directory  
+Run the  	**resultsscraper.py**  
+You can otherwise run the notebook **ResultsScraper.ipynb** 
 
 ### Prerequisites
 
