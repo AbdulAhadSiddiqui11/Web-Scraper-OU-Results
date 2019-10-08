@@ -73,7 +73,7 @@ Use can otherwise run the notebook **ResultsScraper.ipynb**
 ## Built With
 
 * [BeautifulSoup](https://www.crummy.com/software/BeautifulSoup/bs4/doc/) - Used for pulling data from HTML page
-* [Pandas](https://pandas.pydata.org/pandas-docs/stable/) - Dataframes used
+* [Pandas](https://pandas.pydata.org/pandas-docs/stable/) - Dataframe used to organize the data
 * [Matplotlib](https://matplotlib.org/) - Used for data visualization
 
 ## Contributing
@@ -82,7 +82,7 @@ Please read [CODE_OF_CONDUCT.md](https://github.com/AbdulAhadSiddiqui11/Web-Scra
 
 ## Authors
 
-* **Abdul Ahad Siddiqui** - *Initial work* - [Abdul Ahad Siddiqui](https://github.com/AbdulAhadSiddiqui11)
+* **Abdul Ahad Siddiqui** - *Idea and implementation* - [Abdul Ahad Siddiqui](https://github.com/AbdulAhadSiddiqui11)
 
 ## License
 
@@ -91,5 +91,5 @@ This project is licensed under the MIT License - see the [LICENSE.md](https://gi
 ## Acknowledgments
 
 * StackOverflow
-* **Inspiration** : It was cumbersome for me to analyze the results for all my classmates to I dicided to automate this process.
+* **Inspiration** : It was cumbersome for me to analyze the results for all my classmates so I dicided to automate this process.
 
