@@ -91,5 +91,5 @@ This project is licensed under the MIT License - see the [LICENSE.md](https://gi
 ## Acknowledgments
 
 * StackOverflow
-* **Inspiration** : It was cumbersome for me to analyze the results for all my classmates so I dicided to automate this process.
+* **Inspiration** : It was cumbersome for me to analyze the results for all my classmates so I decided to automate this process.
 
