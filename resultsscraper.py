@@ -3,6 +3,7 @@ import pandas as pd
 import requests
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
+from time import sleep
 from matplotlib import pyplot as plt
 from progressbar import ProgressBar
 print("Modules Imported")
