@@ -74,13 +74,13 @@ def fetch_result(starting_roll, ending_roll, url):
                 
                 results_data = append_dataframe(results_data,name,sgpa\
                                                     ,rno%1000000,subjects,grades)                   # If its not the first iteration, append new rows to the existing dataframe      
-                
-        except ConnectionError as err:
+         
+        except ConnectionResetError as err:
             print(err)
 
-        except:
-            print('\n' + str(rno) + " - Doesn't exists")          
-            
+        except AttributeError:
+            print('\n' + str(rno) + " - Doesn't exists")
+                
         finally:
             if rno == ending_roll:                                                                  # Return the completed DataFrame - Last roll may cause an exception so finally-block
                 return results_data
@@ -138,13 +138,16 @@ def visualize(dataframe):
 def main():
 
     while(True):
-        starting_roll = int(input("Enter the starting roll number : "))
-        ending_roll = int(input("Enter the last roll number : "))
-        range_ = ending_roll - starting_roll
-        if(range_ < 0 or range_ > 120):
-            print('Please check the roll numbers - you can seach for atleast 1 student and atmost 120 students at a time!')
-        else:
-            break
+        try:
+            starting_roll = int(input("Enter the starting roll number : "))
+            ending_roll = int(input("Enter the last roll number : "))
+            range_ = ending_roll - starting_roll
+            if(range_ < 0 or range_ > 120):
+                print('Please check the roll numbers - you can seach for atleast 1 student and atmost 120 students at a time!')
+            else:
+                break
+        except ValueError:
+            print('Please enter a valid value i.e. int for roll numbers and string for url')
     
     url = input("Paste the link to the results : ")
 
