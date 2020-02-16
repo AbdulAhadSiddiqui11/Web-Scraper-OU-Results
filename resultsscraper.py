@@ -90,15 +90,18 @@ def visualize(dataframe):
     sgpa = []
 
     for gpa in unprocessed_gpa:
-        if gpa == 'PROMOTED--' or gpa == 'PROMOTED':
-            sgpa.append(float(0.05))
-        elif gpa == 'DETAINED':
-            sgpa.append(float(-0.05))
-        elif gpa[1] == 'R':                                                                            # For PROMOTED - 7.65 case. 
-            sgpa.append(float(gpa[9:len(gpa)+1]))
-        else:
-            #print((gpa[7:len(gpa)+1]))
-            sgpa.append(float(gpa[7:len(gpa)+1]))                                                      # Fetching float values from result Eg : 'PASSED-8.64'
+        try:
+            if gpa == 'PROMOTED--' or gpa == 'PROMOTED' or gpa == ' PROMOTED' or gpa =='ALREADY PROMOTED ':
+                sgpa.append(float(0.05))
+            elif gpa == 'DETAINED':
+                sgpa.append(float(-0.05))
+            elif gpa[1] == 'R':                                                                            # For PROMOTED - 7.65 case. 
+                sgpa.append(float(gpa[9:len(gpa)+1]))
+            else:
+                #print((gpa[7:len(gpa)+1]))
+                sgpa.append(float(gpa[7:len(gpa)+1]))                                                      # Fetching float values from result Eg : 'PASSED-8.64
+        except:
+            print("Something went wrong on OU server -_- : Skipping 1 student")
             
     unprocessed_rolls = dataframe['Roll No.'].tolist()                                                 # Creating a list of roll numbers (less digits) 
     rolls = []
