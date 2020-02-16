@@ -1,6 +1,8 @@
 from bs4 import BeautifulSoup
 import pandas as pd
 import requests
+from requests.adapters import HTTPAdapter
+from requests.packages.urllib3.util.retry import Retry
 from matplotlib import pyplot as plt
 from progressbar import ProgressBar
 print("Modules Imported")
@@ -15,7 +17,7 @@ def append_dataframe(results_data,name,sgpa,rno,subjects,grades):
     data['Roll No.'] = rno
     data['Result'] = sgpa                                                                                                    
     temp_dataframe = pd.DataFrame(data, columns = ['Roll No.', 'Name', ] +\
-                                  subjects + ['Result'], index = [rno%1000,])                        # Creating a temp dataframe with only one row and same structure (columns) as that of results_data                                
+                                  subjects + ['Result'], index = [rno%1000,])                       # Creating a temp dataframe with only one row and same structure (columns) as that of results_data                                
     results_data = results_data.append(temp_dataframe, sort = False)                                 # Appending the new dataframe to results_data
     return results_data
 
@@ -24,9 +26,17 @@ def fetch_result(starting_roll, ending_roll, url):
     for rno in pbar(range(starting_roll, ending_roll+1)):
         try:
             with requests.session() as sess:
+
+                # This will POST the URL and retry 10 times in case of requests.exceptions.ConnectionError. backoff_factor will help to apply delays between attempts to avoid to fail again in case of periodic request quota.
+                retry = Retry(connect=10, backoff_factor=0.5)
+                adapter = HTTPAdapter(max_retries=retry)
+                sess.mount('http://', adapter)
+                sess.mount('https://', adapter)
+    
+
                 page = sess.post(url, data = {'htno':rno, 'mbstatus':'SEARCH'})                     # Posting htno and CSRF token to the JSP
                 soup = BeautifulSoup(page.content,'html.parser')                                    # Converting into a BeautifulSoup Object for html parsing
-
+                
                 # Fetching student name
                 name_table = soup.find(id = 'AutoNumber3')                                          # Find the table with student details (name, fname etc)
                 name_rows = name_table.find_all('tr')                                               # Dividing the table into list of rows
@@ -48,7 +58,7 @@ def fetch_result(starting_roll, ending_roll, url):
                 result_rows = result_table.find_all('tr')                                           # Dividing the table into a list of rows
                 result_row = result_rows[-1].find_all('td')                                         # Generally Row 3 (indexed 2) has sgpa (or last row in case of 'promoted' case), so divide row-3 into columns
                 sgpa = str(result_row[-1].get_text()).strip()                                       # Extract sgpa from column 3 (indexed 2)  --> This has changed from last time, i.e they removed one column from the last row; so the new column is 2 (indexed 1). So better use index -1 from now on.
-        
+                
                 
                 if rno == starting_roll:                                                            # If its the first iteration create a new empty data frame
                     results_data = create_dataframe(subjects)
@@ -57,7 +67,8 @@ def fetch_result(starting_roll, ending_roll, url):
                 results_data = append_dataframe(results_data,name,sgpa\
                                                     ,rno%1000000,subjects,grades)                   # If its not the first iteration, append new rows to the existing dataframe      
                 
-        except :
+        except Exception as e :
+            print(e)
             print('\n' + str(rno) + " - Doesn't exists")
             
             
@@ -69,6 +80,7 @@ def visualize(dataframe):
 
     unprocessed_gpa = dataframe['Result'].tolist()                                                     # Creating a list of SGPAs
     sgpa = []
+
     for gpa in unprocessed_gpa:
         if gpa == 'PROMOTED--' or gpa == 'PROMOTED':
             sgpa.append(float(0.05))
@@ -77,8 +89,9 @@ def visualize(dataframe):
         elif gpa[1] == 'R':                                                                            # For PROMOTED - 7.65 case. 
             sgpa.append(float(gpa[9:len(gpa)+1]))
         else:
+            #print((gpa[7:len(gpa)+1]))
             sgpa.append(float(gpa[7:len(gpa)+1]))                                                      # Fetching float values from result Eg : 'PASSED-8.64'
-
+            
     unprocessed_rolls = dataframe['Roll No.'].tolist()                                                 # Creating a list of roll numbers (less digits) 
     rolls = []
     for roll in unprocessed_rolls:
@@ -106,7 +119,7 @@ def visualize(dataframe):
         elif sgpa[i] == 0.05:
             plt.bar(rolls[i],sgpa[i], color ='c')
         elif sgpa[i] == -0.05:
-            plt.bar(rolls[i],sgpa[i], color ='k', label='DETAINED')
+            plt.bar(rolls[i],sgpa[i], color ='k', label= str(rolls[i]) + ' - DETAINED')
     
     plt.legend()                                                                                       # Display the legend
     plt.savefig('Results-Bar-Graph.png', dpi = 80)
