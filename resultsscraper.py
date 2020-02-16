@@ -74,13 +74,11 @@ def fetch_result(starting_roll, ending_roll, url):
                 
                 results_data = append_dataframe(results_data,name,sgpa\
                                                     ,rno%1000000,subjects,grades)                   # If its not the first iteration, append new rows to the existing dataframe      
-         
-        except ConnectionResetError as err:
-            print(err)
-
+                
         except AttributeError:
             print('\n' + str(rno) + " - Doesn't exists")
-                
+        except Exception as err:
+            print(err)      
         finally:
             if rno == ending_roll:                                                                  # Return the completed DataFrame - Last roll may cause an exception so finally-block
                 return results_data
