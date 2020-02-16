@@ -7,6 +7,12 @@ from matplotlib import pyplot as plt
 from progressbar import ProgressBar
 print("Modules Imported")
 
+# CONFIGURE THE DELAY FOR BETTER PERFORMANCE 
+
+def delay():                                                                                        # Increase or decrease the delay between each request depending on the OU server. You can even turn it down to 0(seconds) if the server is responding well. If you get ConnectionResetError then you should increase the delay.
+    seconds = 2
+    sleep(seconds)
+
 def create_dataframe(subjects):
     results_data = pd.DataFrame(columns = ['Roll No.', 'Name', ] + subjects + ['Result'])            # Returns an empty dataframe
     return results_data
@@ -26,6 +32,8 @@ def fetch_result(starting_roll, ending_roll, url):
     for rno in pbar(range(starting_roll, ending_roll+1)):
         try:
             with requests.session() as sess:
+                
+                delay()                                                                              # Adds delay between  successive requests
 
                 # This will POST the URL and retry 10 times in case of requests.exceptions.ConnectionError. backoff_factor will help to apply delays between attempts to avoid to fail again in case of periodic request quota.
                 retry = Retry(connect=10, backoff_factor=0.5)
@@ -67,10 +75,11 @@ def fetch_result(starting_roll, ending_roll, url):
                 results_data = append_dataframe(results_data,name,sgpa\
                                                     ,rno%1000000,subjects,grades)                   # If its not the first iteration, append new rows to the existing dataframe      
                 
-        except Exception as e :
-            print(e)
-            print('\n' + str(rno) + " - Doesn't exists")
-            
+        except ConnectionError as err:
+            print(err)
+
+        except:
+            print('\n' + str(rno) + " - Doesn't exists")          
             
         finally:
             if rno == ending_roll:                                                                  # Return the completed DataFrame - Last roll may cause an exception so finally-block
