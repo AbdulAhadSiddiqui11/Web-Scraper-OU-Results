@@ -78,6 +78,7 @@ def fetch_result(starting_roll, ending_roll, url):
         except AttributeError:
             print('\n' + str(rno) + " - Doesn't exists")
         except Exception as err:
+            print('Skipping ' + str(rno) + 'due to :')
             print(err)      
         finally:
             if rno == ending_roll:                                                                  # Return the completed DataFrame - Last roll may cause an exception so finally-block
