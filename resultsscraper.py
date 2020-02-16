@@ -47,7 +47,7 @@ def fetch_result(starting_roll, ending_roll, url):
                 result_table = soup.find( id = 'AutoNumber5')                                       # Find the table with final result
                 result_rows = result_table.find_all('tr')                                           # Dividing the table into a list of rows
                 result_row = result_rows[-1].find_all('td')                                         # Generally Row 3 (indexed 2) has sgpa (or last row in case of 'promoted' case), so divide row-3 into columns
-                sgpa = str(result_row[2].get_text()).strip()                                        # Extract sgpa from column 3 (indexed 2)  
+                sgpa = str(result_row[-1].get_text()).strip()                                       # Extract sgpa from column 3 (indexed 2)  --> This has changed from last time, i.e they removed one column from the last row; so the new column is 2 (indexed 1). So better use index -1 from now on.
         
                 
                 if rno == starting_roll:                                                            # If its the first iteration create a new empty data frame
